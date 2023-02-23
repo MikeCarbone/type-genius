@@ -48,22 +48,22 @@ will become this:
 ```json
 {
 	"key_name_1": {
-        "type": "string",
-        "optional": false
-    },
+		"type": "string",
+		"optional": false
+	},
 	"key_name_2": {
-        "type": "number",
-        "optional": false
-    },
+		"type": "number",
+		"optional": false
+	},
 	"key_name_3": {
-        "type": "object",
-        "optional": false,
-        "object_keys": {
-            "key_name_4": {
-                "type": "boolean",
-                "optional: false
-            }
-        }
+		"type": "object",
+		"optional": false,
+		"object_keys": {
+			"key_name_4": {
+				"type": "boolean",
+				"optional": false
+			}
+		}
 	}
 }
 ```
@@ -84,7 +84,7 @@ An interface configuration is a set of instructions that outline how to create e
 
 An interface configuration looks like this:
 
-```json
+```js
 {
 	"string": "", // string that will get written to a file
 	"typesConfig": {}, // type configuration object
@@ -118,22 +118,22 @@ If one of the keys has a type of `object`, the function will run recursively to 
 
 ```json
 {
-    "key_name_3": {
-        "type": "object",
-        "optional": false,
-        "object_keys": {
-            "key_name_4": {
-                "type": "boolean",
-                "optional: false
-            }
-        }
+	"key_name_3": {
+		"type": "object",
+		"optional": false,
+		"object_keys": {
+			"key_name_4": {
+				"type": "boolean",
+				"optional": false
+			}
+		}
 	}
 }
 ```
 
 #### Interface Resolution
 
-Each time the engine attempts to create an interface configuration, it will first do a deep comparison of its type configuration object against all existing interface cofigurations' type configuration objects already in the store. If it finds a match, it will return that interface and the key will now reference that interface.
+Each time the engine attempts to create an interface configuration, it will first do a deep comparison of its type configuration object against all existing interface configurations' type configuration objects already in the store. If it finds a match, it will return that interface and the key will now reference that interface.
 
 ### 4. EXPORT - Concatenate string properties from interface configurations
 
