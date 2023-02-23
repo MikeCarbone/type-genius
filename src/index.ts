@@ -1,9 +1,17 @@
-const fs = require("fs");
-const path = require("path");
-const testData = require("./testData");
-const deepEqual = require("deep-equal");
+import { writeFile } from "fs";
+import { join } from "path";
+import deepEqual from "deep-equal";
 
-function capitalize(sentence) {
+import {
+	type CreateInterfaceOptions,
+	type InterfaceConfig,
+	type TypeConfigurationObject,
+	type TypeStore,
+	type ValueTypeConfiguration,
+} from "./interfaces";
+import testData from "./testData";
+
+function capitalize(sentence: string) {
 	return sentence
 		.split(" ")
 		.map((word) => word[0].toUpperCase() + word.slice(1))
@@ -16,12 +24,11 @@ function capitalize(sentence) {
  * We assume everything is required.
  * If something is null or undefined, we can assume that value is not required in the object
  */
-function getTypeConfig(value) {
-	const typeConfig = {
+function getTypeConfig(value: any): ValueTypeConfiguration {
+	const typeConfig: ValueTypeConfiguration = {
 		type: "unknown",
 		optional: false,
 		is_array: false,
-		object_keys: undefined,
 	};
 
 	if (typeof value === "string") {
@@ -80,14 +87,16 @@ function getTypeConfig(value) {
 
 		return typeConfig;
 	}
+	// This shouldn't get hit
+	return typeConfig;
 }
 
 /**
  * This function will break down an object's keys and return an object with its type configurations
  * Each key gets a new object as its value. That object describes the type to render.
  */
-function generateTypeConfigFromObject(obj) {
-	const typeConfigObject = {};
+function generateTypeConfigFromObject(obj: { [key: string]: any }) {
+	const typeConfigObject: TypeConfigurationObject = {};
 	Object.keys(obj).forEach((key) => {
 		const val = obj[key];
 		typeConfigObject[key] = getTypeConfig(val);
@@ -99,7 +108,17 @@ function generateTypeConfigFromObject(obj) {
  * This is how we write our string to a file
  * Called multiple places so making this explicit in one spot
  */
-function generateKeyString({ key, type, isOptional, isArray }) {
+function generateKeyString({
+	key,
+	type,
+	isOptional,
+	isArray,
+}: {
+	key: string;
+	type: string;
+	isOptional: boolean;
+	isArray: boolean;
+}) {
 	return `  ${key}${isOptional ? "?" : ""}: ${type}${isArray ? "[]" : ""}\n`;
 }
 
@@ -107,10 +126,13 @@ function generateKeyString({ key, type, isOptional, isArray }) {
  * This function will actually render the types to a file
  */
 function createInterface(
-	typesConfig,
-	typesStore,
-	{ interfaceName = "Response", nested = [] }
+	typesConfig: TypeConfigurationObject,
+	typesStore: TypeStore,
+	options?: CreateInterfaceOptions
 ) {
+	const interfaceName = options?.interfaceName || "Response";
+	const nested = options?.nested || [];
+
 	// If the config is the same, skip generation, reference that interface
 	// We use a deep comparison of the typesConfig object
 	// Everything will have to be equal
@@ -129,7 +151,7 @@ function createInterface(
 	// string is what gets written
 	// typesConfig is what we use as comparison
 	// interfaceName so we can refer back to it in the future
-	const interfaceConfig = {
+	const interfaceConfig: InterfaceConfig = {
 		string: "",
 		typesConfig,
 		interfaceName,
@@ -143,7 +165,7 @@ function createInterface(
 		const config = typesConfig[key];
 
 		// If it's an object, we want to think about its types and handle those differently
-		if (config.type === "object" && config.object_keys) {
+		if (config.type === "object" && "object_keys" in config) {
 			// We keep track of how nested this object is so we can determine a good name automatically
 			const newNested = [...nested, key];
 
@@ -154,7 +176,7 @@ function createInterface(
 
 			// This either returns an existing interfaceConfig or creates a new one
 			const newOrExistingInterface = createInterface(
-				config.object_keys,
+				config.object_keys || {},
 				typesStore,
 				{
 					interfaceName: newTypeName,
@@ -199,16 +221,16 @@ const types = generateTypeConfigFromObject(testData);
 
 // Types store will be our saved types for a file
 // We can reuse these so future objects can reuse types or start from nothing to generate new ones
-const typesStore = [];
+const typesStore: TypeStore = [];
 
 // Populate our store so we can write the interfaces to a file
-createInterface(types, typesStore, {});
+createInterface(types, typesStore);
 
 // Flatten to interface configurations to a single string
 const fileString = typesStore.map((t) => t.string).join("\n\n") + "\n";
 
 // Write the file using that string
-fs.writeFileSync(path.join(__dirname, "/index.d.ts"), fileString, (err) => {
+writeFile(join(__dirname, "/index.d.ts"), fileString, {}, (err) => {
 	console.log(err);
 	throw new Error("Couldn't write file.");
 });

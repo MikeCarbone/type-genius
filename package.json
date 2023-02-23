@@ -2,11 +2,23 @@
 	"name": "type-genius",
 	"version": "0.0.1",
 	"description": "",
-	"main": "index.js",
+	"main": "./dist/index.js",
 	"author": "Mike Carbone",
+	"repository": {
+		"url": "https://github.com/MikeCarbone/type-genius"
+	},
+	"scripts": {
+		"build": "tsc",
+		"prepare": "npm run build"
+	},
 	"license": "ISC",
-	"types": "./index.d.ts",
+	"types": "./dist/index.d.ts",
 	"dependencies": {
 		"deep-equal": "^2.2.0"
+	},
+	"devDependencies": {
+		"@types/deep-equal": "^1.0.1",
+		"@types/node": "^18.14.1",
+		"typescript": "^4.9.5"
 	}
 }
