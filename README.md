@@ -1,31 +1,143 @@
-# CRUDKIT
+# Type Genius
 
 ## What is it
 
-Crudkit is a tool to generate a Typescript file from any object. Originally, it was created to help type API responses with no supplied type files. The tool, however, can work with any object.
+Type Genius is a library that can generate a Typescript file from any JSON object.
 
-For example, if we made an HTTP request, the object returned can always be _something_, but we don't always know. For development purposes, it makes it much easier if we can quickly unlock intellisense for the response.
+This generator can be useful for many reasons:
+
+-   Creating interfaces for JSON data returned from HTTP requests
+-   Migrating JavaScript code to Typescript
+-   Quickly scaffolding Typescript interfaces based on existing data structures
+
+For example, the object returned from an HTTP request can be _anything_, but generally, it's going to be consistent in its return. It would be great to leverage Typescript to have intellisense for the response object. However, many APIs don't ship with a Typescript library, so you have to assume `any` as its type, or type it by hand.
+
+On the other hand, you can use this package to quickly generate an interface from an API response.
 
 ```ts
-import { types } from "@crdkit/types";
+import {} from "type-genius";
 
+// Get some data
 const res = await fetch("https://json.com");
 const data = await res.json();
 
+// Generate type file
 types(data);
 ```
 
 ## Architecture
 
-Before we can create our Typescript file, we have to run through a few steps to make sure things run correctly. Some features
+Before we can create our Typescript file, we have to run through a few steps to make sure things run correctly. Here is what happens under the hood:
 
-1. Convert object to type configuration object
+### 1. PARSE - Convert object to a type configuration object
 
-2. Initialize type store
+We first parse our object to determine each value's type. For example, this object:
 
-3. Populate store with interface configurations
+```json
+{
+	"key_name_1": "value",
+	"key_name_2": 1,
+	"key_name_3": {
+		"key_name_4": true
+	}
+}
+```
 
-4. Concatenate string properties from interface configurations
+will become this:
+
+```json
+{
+	"key_name_1": {
+        "type": "string",
+        "optional": false
+    },
+	"key_name_2": {
+        "type": "number",
+        "optional": false
+    },
+	"key_name_3": {
+        "type": "object",
+        "optional": false,
+        "object_keys": {
+            "key_name_4": {
+                "type": "boolean",
+                "optional: false
+            }
+        }
+	}
+}
+```
+
+### 2. SAVE - Initialize type store
+
+Soon we're going to create configuration objects that describe how to construct our interface. Before we do that, we need to save them somewhere so we can refer back to this list if we have to. We have to do this in order to remove duplicate interfaces.
+
+```js
+const typesStore = [];
+```
+
+If you want to save interfaces generated in the past and refer back to them, you can use a populated array here. This is useful if you have recurring interfaces in multiple places. You don't always want to generate every interface from scratch.
+
+### 3. CREATE - Populate store with interface configurations
+
+An interface configuration is a set of instructions that outline how to create each interface. It includes the name of the interface, the various type configuration objects within, and the generated file string.
+
+An interface configuration looks like this:
+
+```json
+{
+	"string": "", // string that will get written to a file
+	"typesConfig": {}, // type configuration object
+	"interfaceName": "" // name of the interface
+}
+```
+
+Here is how each interface configuration gets produced.
+First, let's assume our store is empty. The engine will go key-by-key through our type configuration object and generate the string necessary.
+
+```json
+{
+	"key_name_1": {
+		"type": "string",
+		"optional": false
+	}
+}
+```
+
+will produce the string:
+
+```typescript
+export interface Response {
+	key_name_1: string;
+}
+```
+
+At this point the interface configuration is saved and stored.
+
+If one of the keys has a type of `object`, the function will run recursively to determine an interface for the nested object. For example, when the engine reaches a key like the one below, the function is going to rerun on the `object_keys` field:
+
+```json
+{
+    "key_name_3": {
+        "type": "object",
+        "optional": false,
+        "object_keys": {
+            "key_name_4": {
+                "type": "boolean",
+                "optional: false
+            }
+        }
+	}
+}
+```
+
+#### Interface Resolution
+
+Each time the engine attempts to create an interface configuration, it will first do a deep comparison of its type configuration object against all existing interface cofigurations' type configuration objects already in the store. If it finds a match, it will return that interface and the key will now reference that interface.
+
+### 4. EXPORT - Concatenate string properties from interface configurations
+
+At this stage, each interface configuration string is concatenated into a single string. This big string will get written to a file, and exported with the specified options.
 
 ## Options
 

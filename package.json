@@ -1,15 +1,12 @@
 {
-  "name": "crudkit",
-  "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Mike Carbone",
-  "license": "ISC",
-  "types": "./index.d.ts",
-  "dependencies": {
-    "deep-equal": "^2.2.0"
-  }
+	"name": "type-genius",
+	"version": "0.0.1",
+	"description": "",
+	"main": "index.js",
+	"author": "Mike Carbone",
+	"license": "ISC",
+	"types": "./index.d.ts",
+	"dependencies": {
+		"deep-equal": "^2.2.0"
+	}
 }
