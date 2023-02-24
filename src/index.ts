@@ -9,7 +9,7 @@ import {
 	type TypeConfigurationObject,
 	type TypeStore,
 	type ValueTypeConfiguration,
-} from "./index.interfaces";
+} from "./interfaces";
 
 function capitalize(sentence: string) {
 	return sentence

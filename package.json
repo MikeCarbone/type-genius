@@ -13,7 +13,7 @@
 		"test": "jest"
 	},
 	"license": "ISC",
-	"types": "./dist/index.d.ts",
+	"types": "dist/index.d.ts",
 	"dependencies": {
 		"deep-equal": "^2.2.0"
 	},
