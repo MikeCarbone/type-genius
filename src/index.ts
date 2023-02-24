@@ -31,7 +31,7 @@ function getTypeConfig(
 	const typeConfig: ValueTypeConfiguration = {
 		type: "unknown",
 		optional: !!options?.forceOptional,
-		is_array: false,
+		isArray: false,
 	};
 
 	const types = {
@@ -63,7 +63,7 @@ function getTypeConfig(
 	if (typeof value === "object") {
 		// item is array
 		if (Array.isArray(value)) {
-			typeConfig.is_array = true;
+			typeConfig.isArray = true;
 
 			// If there is no value in the array, we can't be sure what it is, and we know its optional
 			if (value.length === 0) {
@@ -216,7 +216,7 @@ function createInterface(
 				key,
 				type: newOrExistingInterface.interfaceName,
 				isOptional: config.optional,
-				isArray: config.is_array,
+				isArray: config.isArray,
 				renderSemis: options?.renderSemis,
 			});
 			return str;
@@ -227,7 +227,7 @@ function createInterface(
 			key,
 			type: config.type,
 			isOptional: config.optional,
-			isArray: config.is_array,
+			isArray: config.isArray,
 			renderSemis: options?.renderSemis,
 		});
 		return str;

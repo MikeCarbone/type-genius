@@ -15,15 +15,30 @@ For example, the object returned from an HTTP request can be _anything_, but gen
 On the other hand, you can use this package to quickly generate an interface from an API response.
 
 ```ts
-import {} from "type-genius";
+import { buildTypes } from "type-genius";
 
 // Get some data
 const res = await fetch("https://json.com");
 const data = await res.json();
 
 // Generate type file
-types(data);
+buildTypes(data);
 ```
+
+## Options
+
+| **Option Name** | **Type** | **Default** | **Description** |
+|---|---|---|---|
+| customTypes | Object? | ```js {  string: "string",  number: "number",  boolean: "boolean",  object: "object"  } ``` | Customize the types that get rendered. For objects, you can render a Record like this:  ```js customTypes: { object: "Record<string, unknown>" ``` |
+| forceOptional | Boolean? | false | Forces each value in every type to be optional. |
+| initialInterfaceName | String? | "Response" | The name given to the first generated interface. |
+| logSuccess | Boolean? | false | Should a success message get rendered after successfully generating the types. |
+| outputFilename | String? | "exported.d.ts" | File name to give the rendered types file. |
+| outputPath | String? | "../dist/" | Where to render the generated types. |
+| renderSemis | Boolean? | false | Render semicolons in the outputted file. |
+| skipFileWrite | Boolean? | false | Whether to write the file or not. |
+| useStore | TypeStore? | [] | Store of existing InterfaceConfiguration objects to use for this generation. |
+| useTypes | Boolean? | false | Whether to render "type"s instead of "interface"s. |
 
 ## Architecture
 
@@ -138,15 +153,3 @@ Each time the engine attempts to create an interface configuration, it will firs
 ### 4. EXPORT - Concatenate string properties from interface configurations
 
 At this stage, each interface configuration string is concatenated into a single string. This big string will get written to a file, and exported with the specified options.
-
-## Options
-
--   Return configurations
--   Initial interface name
--   Output path
--   Output filename
--   Customize unknown type
--   Customeize all types
--   Everything optional
--   Use types instead of interfaces
--   Render semi-colons
