@@ -38,6 +38,7 @@ The `buildTypes` function takes a second parameter where you can pass an options
 | outputFilename | String? | "exported.d.ts" | File name to give the rendered types file. |
 | outputPath | String? | "../dist/" | Where to render the generated types. |
 | renderSemis | Boolean? | false | Render semicolons in the outputted file. |
+| returnFileString | Boolean? | false | Return the string that would get rendered to a file. Enabling this prevents the file from being written. |
 | skipFileWrite | Boolean? | false | Whether to write the file or not. |
 | useStore | TypeStore? | [] | Store of existing InterfaceConfiguration objects to use for this generation. |
 | useTypes | Boolean? | false | Whether to render "type"s instead of "interface"s. |

@@ -266,6 +266,10 @@ export function buildTypes(
 	// Flatten to interface configurations to a single string
 	const fileString = typesStore.map((t) => t.string).join("\n\n") + "\n";
 
+	if (options?.returnFileString) {
+		return fileString;
+	}
+
 	// Write the file using that string
 	const outputPath = options?.outputPath || "../dist/";
 	const outputFilename = options?.outputFilename || "exported.d.ts";
