@@ -1,5 +1,5 @@
 import { test, expect, describe } from "@jest/globals";
-import { buildTypes } from ".";
+import { buildTypes, buildTypesFileString } from ".";
 
 const testObj = {
 	a: 1,
@@ -79,5 +79,14 @@ describe("default options are working correctly", () => {
 	test("ensures InterfaceConfig has all properties", () => {
 		const val = Object.keys(build[0]).length;
 		expect(val).toBe(3);
+	});
+});
+
+describe("buildTypesFileString function", () => {
+	const str = buildTypesFileString(testObj);
+
+	test("ensures function returns a string", () => {
+		const val = typeof str;
+		expect(val).toBe("string");
 	});
 });

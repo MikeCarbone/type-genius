@@ -266,16 +266,6 @@ export function buildTypes(
 	// Flatten to interface configurations to a single string
 	const fileString = typesStore.map((t) => t.string).join("\n\n") + "\n";
 
-	if (options?.returnFileString) {
-		const specialStringInterfaceConfigReturn: InterfaceConfig = {
-			string: fileString,
-			typesConfig: {},
-			interfaceName: "Full File String",
-		};
-		// Return type will always be an array of InterfaceConfigs
-		return [specialStringInterfaceConfigReturn];
-	}
-
 	// Write the file using that string
 	const outputPath = options?.outputPath || "../dist/";
 	const outputFilename = options?.outputFilename || "exported.d.ts";
@@ -293,6 +283,31 @@ export function buildTypes(
 		}
 	);
 	return typesStore;
+}
+
+/**
+ * This function is very similar to buildTypes above, but instead we explicitly return a string
+ * This is so Typescript knows this one definitely returns a string, and the other definitely returns
+ * a TypeStore
+ */
+export function buildTypesFileString(
+	data: { [key: string]: unknown },
+	options?: BuildOptions
+) {
+	// Convert our object into our type configurations object
+	const types = generateTypeConfigFromObject(data, options || {});
+
+	// Types store will be our saved types for a file
+	// We can reuse these so future objects can reuse types or start from nothing to generate new ones
+	const typesStore: TypeStore = options?.useStore || [];
+
+	// Populate our store so we can write the interfaces to a file
+	createInterface(types, typesStore, options);
+
+	// Flatten to interface configurations to a single string
+	const fileString = typesStore.map((t) => t.string).join("\n\n") + "\n";
+
+	return fileString;
 }
 
 export {

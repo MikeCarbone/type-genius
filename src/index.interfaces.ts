@@ -58,10 +58,6 @@ export interface BuildOptions {
 	 */
 	renderSemis?: boolean;
 	/**
-	 * Return the string that would get rendered to a file. Enabling this prevents the file from being written.
-	 */
-	returnFileString?: boolean;
-	/**
 	 * Whether to write the file or not.
 	 */
 	skipFileWrite?: boolean;
