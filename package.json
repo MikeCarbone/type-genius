@@ -1,15 +1,15 @@
 {
 	"name": "type-genius",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "",
-	"main": "./dist/index.js",
+	"main": "dist/index.js",
 	"author": "Mike Carbone",
 	"repository": {
 		"url": "https://github.com/MikeCarbone/type-genius"
 	},
 	"scripts": {
 		"build": "tsc",
-		"prepare": "npm run build",
+		"prepare": "tsc",
 		"test": "jest"
 	},
 	"license": "ISC",
