@@ -267,7 +267,13 @@ export function buildTypes(
 	const fileString = typesStore.map((t) => t.string).join("\n\n") + "\n";
 
 	if (options?.returnFileString) {
-		return fileString;
+		const specialStringInterfaceConfigReturn: InterfaceConfig = {
+			string: fileString,
+			typesConfig: {},
+			interfaceName: "Full File String",
+		};
+		// Return type will always be an array of InterfaceConfigs
+		return [specialStringInterfaceConfigReturn];
 	}
 
 	// Write the file using that string
