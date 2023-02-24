@@ -3,13 +3,13 @@ import { join } from "path";
 import deepEqual from "deep-equal";
 
 import {
+	type BuildOptions,
 	type CreateInterfaceOptions,
 	type InterfaceConfig,
 	type TypeConfigurationObject,
 	type TypeStore,
 	type ValueTypeConfiguration,
 } from "./interfaces";
-import testData from "./testData";
 
 function capitalize(sentence: string) {
 	return sentence
@@ -24,27 +24,39 @@ function capitalize(sentence: string) {
  * We assume everything is required.
  * If something is null or undefined, we can assume that value is not required in the object
  */
-function getTypeConfig(value: any): ValueTypeConfiguration {
+function getTypeConfig(
+	value: any,
+	options?: BuildOptions
+): ValueTypeConfiguration {
 	const typeConfig: ValueTypeConfiguration = {
 		type: "unknown",
-		optional: false,
+		optional: !!options?.forceOptional || false,
 		is_array: false,
 	};
 
+	const types = {
+		string: "string",
+		number: "number",
+		object: "object",
+		boolean: "boolean",
+		unknown: "unknown",
+		...options?.customTypes,
+	};
+
 	if (typeof value === "string") {
-		typeConfig.type = "string";
+		typeConfig.type = types.string;
 		return typeConfig;
 	}
 	if (typeof value === "number") {
-		typeConfig.type = "number";
+		typeConfig.type = types.number;
 		return typeConfig;
 	}
 	if (typeof value === "boolean") {
-		typeConfig.type = "boolean";
+		typeConfig.type = types.boolean;
 		return typeConfig;
 	}
 	if (value === null) {
-		typeConfig.type = "unknown";
+		typeConfig.type = types.unknown;
 		typeConfig.optional = true;
 		return typeConfig;
 	}
@@ -55,7 +67,7 @@ function getTypeConfig(value: any): ValueTypeConfiguration {
 
 			// If there is no value in the array, we can't be sure what it is, and we know its optional
 			if (value.length === 0) {
-				typeConfig.type = "unknown";
+				typeConfig.type = types.unknown;
 				typeConfig.optional = true;
 			} else {
 				// We can figure out what's in the array based on the first value
@@ -78,7 +90,7 @@ function getTypeConfig(value: any): ValueTypeConfiguration {
 		const hasKeys = !!Object.keys(value).length;
 
 		// instead we just say it's an object
-		typeConfig.type = "object";
+		typeConfig.type = types.object;
 
 		// if it does have keys, figure out what's inside
 		if (hasKeys) {
@@ -95,11 +107,14 @@ function getTypeConfig(value: any): ValueTypeConfiguration {
  * This function will break down an object's keys and return an object with its type configurations
  * Each key gets a new object as its value. That object describes the type to render.
  */
-function generateTypeConfigFromObject(obj: { [key: string]: any }) {
+function generateTypeConfigFromObject(
+	obj: { [key: string]: any },
+	options?: BuildOptions
+) {
 	const typeConfigObject: TypeConfigurationObject = {};
 	Object.keys(obj).forEach((key) => {
 		const val = obj[key];
-		typeConfigObject[key] = getTypeConfig(val);
+		typeConfigObject[key] = getTypeConfig(val, options);
 	});
 	return typeConfigObject;
 }
@@ -113,13 +128,17 @@ function generateKeyString({
 	type,
 	isOptional,
 	isArray,
+	renderSemis,
 }: {
 	key: string;
 	type: string;
 	isOptional: boolean;
 	isArray: boolean;
+	renderSemis?: boolean;
 }) {
-	return `  ${key}${isOptional ? "?" : ""}: ${type}${isArray ? "[]" : ""}\n`;
+	return `  ${key}${isOptional ? "?" : ""}: ${type}${isArray ? "[]" : ""}${
+		renderSemis ? ";" : ""
+	}\n`;
 }
 
 /**
@@ -130,7 +149,8 @@ function createInterface(
 	typesStore: TypeStore,
 	options?: CreateInterfaceOptions
 ) {
-	const interfaceName = options?.interfaceName || "Response";
+	const interfaceName =
+		options?.interfaceName || options?.initialInterfaceName || "Response";
 	const nested = options?.nested || [];
 
 	// If the config is the same, skip generation, reference that interface
@@ -158,7 +178,9 @@ function createInterface(
 	};
 
 	// Let's start the string for the interface
-	let str = `export interface ${interfaceName} {\n`;
+	let str = options?.useTypes
+		? `export type ${interfaceName} = {\n`
+		: `export interface ${interfaceName} {\n`;
 
 	// For each type configuration object (one per key, original object key is preserved)
 	Object.keys(typesConfig).map((key) => {
@@ -181,6 +203,7 @@ function createInterface(
 				{
 					interfaceName: newTypeName,
 					nested: newNested,
+					...options,
 				}
 			);
 
@@ -190,6 +213,7 @@ function createInterface(
 				type: newOrExistingInterface.interfaceName,
 				isOptional: config.optional,
 				isArray: config.is_array,
+				renderSemis: options?.renderSemis,
 			});
 			return str;
 		}
@@ -200,6 +224,7 @@ function createInterface(
 			type: config.type,
 			isOptional: config.optional,
 			isArray: config.is_array,
+			renderSemis: options?.renderSemis,
 		});
 		return str;
 	});
@@ -216,21 +241,39 @@ function createInterface(
 	return interfaceConfig;
 }
 
-// Convert our object into our type configurations object
-const types = generateTypeConfigFromObject(testData);
+export function buildTypes(
+	data: { [key: string]: any },
+	options?: BuildOptions
+) {
+	// Convert our object into our type configurations object
+	const types = generateTypeConfigFromObject(data);
 
-// Types store will be our saved types for a file
-// We can reuse these so future objects can reuse types or start from nothing to generate new ones
-const typesStore: TypeStore = [];
+	// Types store will be our saved types for a file
+	// We can reuse these so future objects can reuse types or start from nothing to generate new ones
+	const typesStore: TypeStore = options?.useStore || [];
 
-// Populate our store so we can write the interfaces to a file
-createInterface(types, typesStore);
+	// Populate our store so we can write the interfaces to a file
+	createInterface(types, typesStore, options);
 
-// Flatten to interface configurations to a single string
-const fileString = typesStore.map((t) => t.string).join("\n\n") + "\n";
+	if (options?.returnConfigurations) {
+		return typesStore;
+	}
 
-// Write the file using that string
-writeFile(join(__dirname, "/index.d.ts"), fileString, {}, (err) => {
-	console.log(err);
-	throw new Error("Couldn't write file.");
-});
+	// Flatten to interface configurations to a single string
+	const fileString = typesStore.map((t) => t.string).join("\n\n") + "\n";
+
+	// Write the file using that string
+	const outputPath = options?.outputPath || "../dist/";
+	const outputFilename = options?.outputFilename || "exported.d.ts";
+	writeFile(
+		join(__dirname, outputPath, outputFilename),
+		fileString,
+		(err) => {
+			if (err) {
+				console.error("Could not complete file write.", err);
+			} else {
+				console.log("File written successfully!");
+			}
+		}
+	);
+}
