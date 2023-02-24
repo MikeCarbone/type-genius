@@ -1,6 +1,6 @@
 {
 	"name": "type-genius",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"description": "",
 	"main": "dist/index.js",
 	"author": "Mike Carbone",
@@ -17,6 +17,9 @@
 	"dependencies": {
 		"deep-equal": "^2.2.0"
 	},
+	"files": [
+		"dist"
+	],
 	"devDependencies": {
 		"@types/deep-equal": "^1.0.1",
 		"@types/jest": "^29.4.0",
