@@ -25,7 +25,7 @@ function capitalize(sentence: string) {
  * If something is null or undefined, we can assume that value is not required in the object
  */
 function getTypeConfig(
-	value: any,
+	value: unknown,
 	options: BuildOptions
 ): ValueTypeConfiguration {
 	const typeConfig: ValueTypeConfiguration = {
@@ -96,7 +96,7 @@ function getTypeConfig(
 		// if it does have keys, figure out what's inside
 		if (hasKeys) {
 			typeConfig.object_keys = generateTypeConfigFromObject(
-				value,
+				value as { [key: string]: unknown },
 				options
 			);
 		}
@@ -112,7 +112,7 @@ function getTypeConfig(
  * Each key gets a new object as its value. That object describes the type to render.
  */
 function generateTypeConfigFromObject(
-	obj: { [key: string]: any },
+	obj: { [key: string]: unknown },
 	options: BuildOptions
 ) {
 	const typeConfigObject: TypeConfigurationObject = {};
@@ -246,7 +246,7 @@ function createInterface(
 }
 
 export function buildTypes(
-	data: { [key: string]: any },
+	data: { [key: string]: unknown },
 	options?: BuildOptions
 ) {
 	// Convert our object into our type configurations object
