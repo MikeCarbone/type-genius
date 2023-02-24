@@ -24,7 +24,7 @@ export interface CreateInterfaceOptions extends BuildOptions {
 
 export interface BuildOptions {
 	useStore?: TypeStore;
-	returnConfigurations?: boolean;
+	skipFileWrite?: boolean;
 	initialInterfaceName?: string;
 	outputPath?: string;
 	outputFilename?: string;
@@ -38,4 +38,5 @@ export interface BuildOptions {
 	forceOptional?: boolean;
 	useTypes?: boolean;
 	renderSemis?: boolean;
+	logSuccess?: boolean;
 }

@@ -9,7 +9,7 @@ import {
 	type TypeConfigurationObject,
 	type TypeStore,
 	type ValueTypeConfiguration,
-} from "./interfaces";
+} from "./index.interfaces";
 
 function capitalize(sentence: string) {
 	return sentence
@@ -26,11 +26,11 @@ function capitalize(sentence: string) {
  */
 function getTypeConfig(
 	value: any,
-	options?: BuildOptions
+	options: BuildOptions
 ): ValueTypeConfiguration {
 	const typeConfig: ValueTypeConfiguration = {
 		type: "unknown",
-		optional: !!options?.forceOptional || false,
+		optional: !!options?.forceOptional,
 		is_array: false,
 	};
 
@@ -71,7 +71,7 @@ function getTypeConfig(
 				typeConfig.optional = true;
 			} else {
 				// We can figure out what's in the array based on the first value
-				const arrayContentsType = getTypeConfig(value[0]).type;
+				const arrayContentsType = getTypeConfig(value[0], options).type;
 
 				// Set the newly determined type
 				typeConfig.type = arrayContentsType;
@@ -79,7 +79,8 @@ function getTypeConfig(
 				// If it's an object, we can run this recursively until everything is figured out
 				if (arrayContentsType === "object") {
 					typeConfig.object_keys = generateTypeConfigFromObject(
-						value[0]
+						value[0],
+						options
 					);
 				}
 			}
@@ -94,7 +95,10 @@ function getTypeConfig(
 
 		// if it does have keys, figure out what's inside
 		if (hasKeys) {
-			typeConfig.object_keys = generateTypeConfigFromObject(value);
+			typeConfig.object_keys = generateTypeConfigFromObject(
+				value,
+				options
+			);
 		}
 
 		return typeConfig;
@@ -109,7 +113,7 @@ function getTypeConfig(
  */
 function generateTypeConfigFromObject(
 	obj: { [key: string]: any },
-	options?: BuildOptions
+	options: BuildOptions
 ) {
 	const typeConfigObject: TypeConfigurationObject = {};
 	Object.keys(obj).forEach((key) => {
@@ -246,7 +250,7 @@ export function buildTypes(
 	options?: BuildOptions
 ) {
 	// Convert our object into our type configurations object
-	const types = generateTypeConfigFromObject(data);
+	const types = generateTypeConfigFromObject(data, options || {});
 
 	// Types store will be our saved types for a file
 	// We can reuse these so future objects can reuse types or start from nothing to generate new ones
@@ -255,7 +259,7 @@ export function buildTypes(
 	// Populate our store so we can write the interfaces to a file
 	createInterface(types, typesStore, options);
 
-	if (options?.returnConfigurations) {
+	if (options?.skipFileWrite) {
 		return typesStore;
 	}
 
@@ -272,8 +276,20 @@ export function buildTypes(
 			if (err) {
 				console.error("Could not complete file write.", err);
 			} else {
-				console.log("File written successfully!");
+				if (options?.logSuccess) {
+					console.log("File written successfully!");
+				}
 			}
 		}
 	);
+	return typesStore;
 }
+
+export {
+	type BuildOptions,
+	type CreateInterfaceOptions,
+	type InterfaceConfig,
+	type TypeConfigurationObject,
+	type TypeStore,
+	type ValueTypeConfiguration,
+};
