@@ -205,9 +205,9 @@ function createInterface(
 				config.object_keys || {},
 				typesStore,
 				{
+					...options,
 					interfaceName: newTypeName,
 					nested: newNested,
-					...options,
 				}
 			);
 

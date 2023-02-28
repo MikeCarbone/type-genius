@@ -9,6 +9,28 @@ const testObj = {
 	},
 };
 
+const testObj2 = {
+	test: {
+		obj: {
+			f: {
+				1: "2",
+				2: 3,
+				3: [1, 2, 3],
+			},
+			g: {
+				1: "2",
+				2: 3,
+				3: [1, 2, 3],
+			},
+			h: {
+				1: "2",
+				2: 3,
+				3: [1, 2, 3],
+			},
+		},
+	},
+};
+
 describe("custom options are working correctly", () => {
 	const build = buildTypes(testObj, {
 		useTypes: true,
@@ -50,6 +72,12 @@ describe("custom options are working correctly", () => {
 
 describe("default options are working correctly", () => {
 	const build = buildTypes(testObj, { skipFileWrite: true });
+	const build2 = buildTypes(testObj2, { skipFileWrite: true });
+
+	test("ensures deep interface naming is correct ", () => {
+		const val = build2[1].string.slice(17, 24);
+		expect(val).toBe("TestObj");
+	});
 
 	test("ensures interfaces rendering", () => {
 		const val = build[0].string.slice(7, 16);

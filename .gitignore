@@ -1,3 +1,6 @@
 node_modules
 index.d.ts
 dist
+testing.js
+testing.ts
+test-output
