@@ -1,5 +1,7 @@
 # Type Genius
 
+[Demo](https://type-genius.carbonology.in/)
+
 ## What is it
 
 Type Genius is a library that can generate a Typescript file from any JSON object.
@@ -29,18 +31,18 @@ buildTypes(data);
 
 The `buildTypes` function takes a second parameter where you can pass an options object. Below are the expected keys for that option object.
 
-| **Option Name** | **Type** | **Default** | **Description** |
-|---|---|---|---|
-| customTypes | Object? | ```js {  string: "string",  number: "number",  boolean: "boolean",  object: "object"  } ``` | Customize the types that get rendered. For objects, you can render a Record like this:  ```js customTypes: { object: "Record<string, unknown>" ``` |
-| forceOptional | Boolean? | false | Forces each value in every type to be optional. |
-| initialInterfaceName | String? | "Response" | The name given to the first generated interface. |
-| logSuccess | Boolean? | false | Should a success message get rendered after successfully generating the types. |
-| outputFilename | String? | "exported.d.ts" | File name to give the rendered types file. |
-| outputPath | String? | "../dist/" | Where to render the generated types. |
-| renderSemis | Boolean? | false | Render semicolons in the outputted file. |
-| skipFileWrite | Boolean? | false | Whether to write the file or not. |
-| useStore | TypeStore? | [] | Store of existing InterfaceConfiguration objects to use for this generation. |
-| useTypes | Boolean? | false | Whether to render "type"s instead of "interface"s. |
+| **Option Name**      | **Type**   | **Default**                                                                             | **Description**                                                                                                                               |
+| -------------------- | ---------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| customTypes          | Object?    | `js {  string: "string",  number: "number",  boolean: "boolean",  object: "object"  } ` | Customize the types that get rendered. For objects, you can render a Record like this: `js customTypes: { object: "Record<string, unknown>" ` |
+| forceOptional        | Boolean?   | false                                                                                   | Forces each value in every type to be optional.                                                                                               |
+| initialInterfaceName | String?    | "Response"                                                                              | The name given to the first generated interface.                                                                                              |
+| logSuccess           | Boolean?   | false                                                                                   | Should a success message get rendered after successfully generating the types.                                                                |
+| outputFilename       | String?    | "exported.d.ts"                                                                         | File name to give the rendered types file.                                                                                                    |
+| outputPath           | String?    | "../dist/"                                                                              | Where to render the generated types.                                                                                                          |
+| renderSemis          | Boolean?   | false                                                                                   | Render semicolons in the outputted file.                                                                                                      |
+| skipFileWrite        | Boolean?   | false                                                                                   | Whether to write the file or not.                                                                                                             |
+| useStore             | TypeStore? | []                                                                                      | Store of existing InterfaceConfiguration objects to use for this generation.                                                                  |
+| useTypes             | Boolean?   | false                                                                                   | Whether to render "type"s instead of "interface"s.                                                                                            |
 
 ## Architecture
 
