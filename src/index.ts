@@ -1,6 +1,7 @@
 import { writeFile } from "fs";
 import { join } from "path";
 import deepEqual from "deep-equal";
+import upperCamel from "uppercamelcase";
 
 import {
 	type BuildOptions,
@@ -10,13 +11,6 @@ import {
 	type TypeStore,
 	type ValueTypeConfiguration,
 } from "./interfaces";
-
-function capitalize(sentence: string) {
-	return sentence
-		.split(" ")
-		.map((word) => word[0].toUpperCase() + word.slice(1))
-		.join(" ");
-}
 
 /**
  * Get the type of a value
@@ -198,7 +192,7 @@ function createInterface(
 			// Generate a new type name based on how nested it is
 			// This may or may not get used, depending on if a match was found in our typesStore
 			// If a match was found, we use that name to refer to existing interface
-			const newTypeName = newNested.map((w) => capitalize(w)).join("");
+			const newTypeName = newNested.map((w) => upperCamel(w)).join("");
 
 			// This either returns an existing interfaceConfig or creates a new one
 			const newOrExistingInterface = createInterface(
